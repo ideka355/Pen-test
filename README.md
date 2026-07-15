@@ -42,22 +42,33 @@ The tool is deliberately conservative:
 
 ## Install
 
+One-time setup — creates a virtual environment and installs the tool as
+the `pentest-tool` command (this also sidesteps Debian/Ubuntu's
+"externally-managed-environment" pip error):
+
 ```bash
-pip install -r requirements.txt
+./install.sh
 ```
 
 ## Usage
 
+Activate the virtual environment once per terminal session, then run the
+tool:
+
 ```bash
-python -m pentest_tool https://target.example --i-have-authorization
+source venv/bin/activate
+pentest-tool https://target.example --i-have-authorization
 ```
 
 You'll be asked to type the target URL back to confirm authorization. To
 skip that prompt (e.g. in CI against a test target you control):
 
 ```bash
-python -m pentest_tool https://target.example --i-have-authorization --yes
+pentest-tool https://target.example --i-have-authorization --yes
 ```
+
+(`python -m pentest_tool ...` also works as an equivalent, if you'd rather
+not install the console script.)
 
 Useful flags:
 
@@ -78,6 +89,8 @@ handy for CI gating.
 ## Project layout
 
 ```
+pyproject.toml         packaging + `pentest-tool` console script
+install.sh              one-shot venv setup
 pentest_tool/
   cli.py              argument parsing, orchestration, authorization gate
   http_client.py       shared rate-limited/budgeted HTTP client
@@ -92,14 +105,14 @@ pentest_tool/
     injection.py
     exposure.py
     post_access.py
-data/
-  admin_paths.txt
-  common_creds.txt
-  sensitive_files.txt
+  data/
+    admin_paths.txt
+    common_creds.txt
+    sensitive_files.txt
 ```
 
 ## Extending
 
-Add a new wordlist entry to the relevant file in `data/`, or add a new
-module under `pentest_tool/modules/` that returns a `list[Finding]` and
-wire it into `cli.py`'s `requested_modules` handling.
+Add a new wordlist entry to the relevant file in `pentest_tool/data/`, or
+add a new module under `pentest_tool/modules/` that returns a
+`list[Finding]` and wire it into `cli.py`'s `requested_modules` handling.

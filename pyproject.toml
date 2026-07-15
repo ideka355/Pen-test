@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pentest-tool"
+version = "0.1.0"
+description = "Authorized website pen-testing tool for admin-access discovery"
+requires-python = ">=3.9"
+dependencies = [
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "colorama>=0.4.6",
+]
+
+[project.scripts]
+pentest-tool = "pentest_tool.cli:main"
+
+[tool.setuptools]
+packages = ["pentest_tool", "pentest_tool.modules"]
+
+[tool.setuptools.package-data]
+pentest_tool = ["data/*.txt"]
