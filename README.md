@@ -74,6 +74,9 @@ Useful flags:
 
 ```
 --modules recon,admin_discovery,credentials,injection,exposure,post_access   (default: all)
+--login-url URL             test this URL as a login form directly (repeatable);
+                             combine with e.g. --modules credentials,injection to
+                             skip path brute-forcing once you already know the form
 --delay 0.5               seconds between requests
 --max-requests 500         hard cap on total requests for the scan
 --max-cred-attempts 15     default-credential attempts per login form
