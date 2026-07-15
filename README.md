@@ -13,6 +13,13 @@ common ways an attacker could reach admin access:
 - **exposure** — checks for exposed config/backup/VCS files (`.env`,
   `.git/config`, `wp-config.php.bak`, ...) that can leak admin credentials
   directly
+- **post_access** — if `credentials` or `injection` got in, reuses that
+  authenticated session to crawl the admin area (GET-only, same-origin,
+  depth/page-capped) and reports what's reachable: page titles, forms
+  present, sensitive-data keywords (users/billing/API keys/...), and any
+  controls whose label suggests a destructive action (delete/remove/drop).
+  It never submits a form or clicks a button — those are reported by
+  label only, so you can see the blast radius without touching data.
 
 ## ⚠️ Authorization
 
@@ -55,10 +62,12 @@ python -m pentest_tool https://target.example --i-have-authorization --yes
 Useful flags:
 
 ```
---modules recon,admin_discovery,credentials,injection,exposure   (default: all)
+--modules recon,admin_discovery,credentials,injection,exposure,post_access   (default: all)
 --delay 0.5               seconds between requests
 --max-requests 500         hard cap on total requests for the scan
 --max-cred-attempts 15     default-credential attempts per login form
+--explore-max-depth 2       link-follow depth for post_access crawling
+--explore-max-pages 40      page cap for post_access crawling
 --json-out report.json     write a machine-readable report
 --no-tls-verify             for self-signed test targets only
 ```
@@ -82,6 +91,7 @@ pentest_tool/
     credentials.py
     injection.py
     exposure.py
+    post_access.py
 data/
   admin_paths.txt
   common_creds.txt
