@@ -2,6 +2,8 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+venv-win/
 build/
+dist/
 *.egg-info/
 report.json

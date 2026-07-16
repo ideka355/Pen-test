@@ -120,6 +120,22 @@ sudo apt install python3-tk
 rm -rf venv && ./install.sh
 ```
 
+### Standalone .exe / native binary
+
+To get a single-file executable that runs without a Python install at all:
+
+```powershell
+# On Windows (PowerShell or cmd — NOT WSL, PyInstaller builds for whatever
+# OS it runs on and can't cross-compile). Requires Python for Windows on PATH.
+build_exe.bat
+```
+
+That produces `dist\PentestTool.exe`. On Linux/macOS, `./build_exe.sh`
+produces the equivalent native binary at `dist/PentestTool`. Both scripts
+create their own venv, install the project + PyInstaller into it, and
+build from `pentest_tool_gui.spec`, which bundles `pentest_tool/data/`
+into the executable so the wordlists work standalone.
+
 ## Project layout
 
 ```
