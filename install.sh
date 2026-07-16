@@ -8,9 +8,26 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+if [ -d venv ] && [ ! -f venv/bin/activate ]; then
+    echo "Found an incomplete ./venv (no bin/activate) from a previous failed attempt -- removing it."
+    rm -rf venv
+fi
+
 if [ ! -d venv ]; then
     echo "Creating virtual environment in ./venv ..."
-    python3 -m venv venv
+    if ! python3 -m venv venv; then
+        echo ""
+        echo "Failed to create the virtual environment. On Debian/Ubuntu/Kali this" >&2
+        echo "usually means the venv module isn't installed:" >&2
+        echo "  sudo apt install python3-venv python3-full" >&2
+        echo "Then re-run ./install.sh" >&2
+        exit 1
+    fi
+fi
+
+if [ ! -f venv/bin/activate ]; then
+    echo "venv/bin/activate is still missing after venv creation reported success -- something is wrong with this Python install." >&2
+    exit 1
 fi
 
 # shellcheck disable=SC1091
