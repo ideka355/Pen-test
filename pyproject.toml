@@ -15,6 +15,7 @@ dependencies = [
 
 [project.scripts]
 pentest-tool = "pentest_tool.cli:main"
+pentest-tool-gui = "pentest_tool.gui:main"
 
 [tool.setuptools]
 packages = ["pentest_tool", "pentest_tool.modules"]

@@ -89,13 +89,46 @@ Useful flags:
 Exit code is `2` if any HIGH/CRITICAL finding was reported, `0` otherwise —
 handy for CI gating.
 
+## Desktop GUI
+
+There's also a desktop app, built on Tkinter (stdlib — no extra install
+needed beyond `install.sh`):
+
+```bash
+source venv/bin/activate
+pentest-tool-gui
+```
+
+It has a form for the target URL, the same authorization-confirmation
+field as the CLI (must match the target exactly before Run is allowed),
+module checkboxes, the same tuning options as the CLI flags, a live log
+tab, and a color-coded, sortable-by-severity findings table with a detail
+pane and a "Save JSON report..." button. It runs the identical scan
+pipeline as the CLI (both call into `pentest_tool/engine.py`), just on a
+background thread so the window stays responsive.
+
+On WSL you need an X display for this — Windows 11's WSLg supports GUI
+apps out of the box; on Windows 10 you'd need a separate X server (e.g.
+VcXsrv).
+
+Debian/Ubuntu (including WSL Ubuntu) often ship Python without Tkinter
+bundled. If `pentest-tool-gui` fails with `ModuleNotFoundError: No module
+named 'tkinter'`, install it system-wide and recreate the venv:
+
+```bash
+sudo apt install python3-tk
+rm -rf venv && ./install.sh
+```
+
 ## Project layout
 
 ```
-pyproject.toml         packaging + `pentest-tool` console script
+pyproject.toml         packaging + `pentest-tool` / `pentest-tool-gui` console scripts
 install.sh              one-shot venv setup
 pentest_tool/
-  cli.py              argument parsing, orchestration, authorization gate
+  cli.py              CLI argument parsing, authorization gate
+  gui.py               desktop GUI (Tkinter)
+  engine.py             shared scan orchestration used by both cli.py and gui.py
   http_client.py       shared rate-limited/budgeted HTTP client
   forms.py              login-form parsing shared by credentials/injection
   findings.py           Finding data model
@@ -118,4 +151,5 @@ pentest_tool/
 
 Add a new wordlist entry to the relevant file in `pentest_tool/data/`, or
 add a new module under `pentest_tool/modules/` that returns a
-`list[Finding]` and wire it into `cli.py`'s `requested_modules` handling.
+`list[Finding]` and wire it into `engine.py`'s `run_scan` — both the CLI
+and the GUI pick it up automatically.
