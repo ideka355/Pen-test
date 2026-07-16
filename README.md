@@ -13,6 +13,13 @@ common ways an attacker could reach admin access:
 - **exposure** — checks for exposed config/backup/VCS files (`.env`,
   `.git/config`, `wp-config.php.bak`, ...) that can leak admin credentials
   directly
+- **idor** — runs its own small anonymous crawl (fresh cookies, GET-only,
+  same-origin) to find `/thing/<id>` URLs, then probes a few IDs beyond the
+  ones actually linked. Flags it if those come back too — i.e. any ID in
+  that space is readable, not just the ones the app linked you — as a
+  broken-access-control / IDOR finding. Correctly reports nothing when the
+  target 404s unknown IDs, since that means the ID space isn't actually
+  over-exposed.
 - **post_access** — if `credentials` or `injection` got in, reuses that
   authenticated session to crawl the admin area (GET-only, same-origin,
   depth/page-capped) and reports what's reachable: page titles, forms
@@ -73,15 +80,19 @@ not install the console script.)
 Useful flags:
 
 ```
---modules recon,admin_discovery,credentials,injection,exposure,post_access   (default: all)
+--modules recon,admin_discovery,credentials,injection,exposure,idor,post_access   (default: all)
 --login-url URL             test this URL as a login form directly (repeatable);
                              combine with e.g. --modules credentials,injection to
                              skip path brute-forcing once you already know the form
 --delay 0.5               seconds between requests
---max-requests 500         hard cap on total requests for the scan
+--max-requests 500         hard cap on total requests for the scan (shared across
+                            every module, including idor's own anonymous crawl)
 --max-cred-attempts 15     default-credential attempts per login form
 --explore-max-depth 2       link-follow depth for post_access crawling
 --explore-max-pages 40      page cap for post_access crawling
+--idor-crawl-max-depth 2    link-follow depth for idor's discovery crawl
+--idor-crawl-max-pages 30   page cap for idor's discovery crawl
+--idor-probes-per-template 5  max IDs tried per discovered /thing/<id> URL
 --json-out report.json     write a machine-readable report
 --no-tls-verify             for self-signed test targets only
 ```
@@ -156,6 +167,7 @@ pentest_tool/
     credentials.py
     injection.py
     exposure.py
+    idor.py
     post_access.py
   data/
     admin_paths.txt
