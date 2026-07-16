@@ -95,6 +95,11 @@ Useful flags:
 --gobuster-delay 0.2          delay between gobuster requests, seconds
 --gobuster-timeout 180        per-target gobuster timeout, seconds
 --max-web-targets 10          cap on discovered (scheme,host,port) endpoints to test
+--login-url URL                test this URL as a login form directly (repeatable);
+                                guarantees its host:port gets tested even if
+                                port_scan/content_discovery missed it, and lets you
+                                skip admin_discovery (--web-app-modules credentials,injection)
+                                to put your whole rate-limit budget into a known form
 --delay 0.5                   seconds between web-app-phase HTTP requests
 --max-requests 500            hard cap on requests per web target in the web-app phase
 --max-cred-attempts 15        default-credential attempts per login form
